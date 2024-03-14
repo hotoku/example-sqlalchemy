@@ -8,17 +8,21 @@ from sqlalchemy.orm import relationship, declarative_base
 if os.path.exists("./db1.sqlite"):
     os.remove("./db1.sqlite")
 
+
 @click.group()
 def main():
     pass
+
 
 @click.group()
 def db():
     pass
 
+
 @db.command()
 def seed():
     pass
+
 
 db.add_command(seed)
 
@@ -26,7 +30,7 @@ db.add_command(seed)
 # `{"check_same_thread": False}`は、SQLite用の設定。
 # cf: https://docs.python.org/3/library/sqlite3.html
 # マルチスレッドで、同一のコネクションを使う場合にはFalse。
-engine = create_engine(f"sqlite:///./db1.sqlite",
+engine = create_engine("sqlite:///./db1.sqlite",
                        connect_args={"check_same_thread": False})
 
 
@@ -43,8 +47,9 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    items = relationship("Item", back_populates="owner", cascade="all, delete-orphan")
-    
+    items = relationship("Item", back_populates="owner",
+                         cascade="all, delete-orphan")
+
 
 class Item(Base):
     __tablename__ = "items"
@@ -53,7 +58,7 @@ class Item(Base):
     content = Column(String)
     owner_id = Column(Integer, ForeignKey("users.id"))
     # Userクラスのitemsという属性と関連付けられる
-    # Usersクラスにitemsという属性がないとエラーになる    
+    # Usersクラスにitemsという属性がないとエラーになる
     owner = relationship("User", back_populates="items")
 
 
@@ -64,12 +69,14 @@ def create_user(db: Session, name: str):
     db.refresh(db_user)
     return db_user
 
+
 def create_item(db: Session, content: str, owner_id: int):
     db_item = Item(content=content, owner_id=owner_id)
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
     return db_item
+
 
 Base.metadata.create_all(bind=engine)
 db = SessionLocal()
@@ -90,10 +97,9 @@ print("User", user.id, user.name, len(user.items))
 # sqlalchemy.exc.ArgumentError: Valid strategies for session synchronization are 'auto', 'evaluate', 'fetch', False
 
 
-
 db2 = sessionmaker(bind=engine)()
 user2 = db2.query(User).filter(User.id == user.id).first()
-db2.delete(user2) # この場合、user2に関連付けられたitemも削除される
+db2.delete(user2)  # この場合、user2に関連付けられたitemも削除される
 db2.commit()
 
 
