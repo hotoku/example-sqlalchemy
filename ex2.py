@@ -3,7 +3,7 @@
 import json
 import os
 from sqlalchemy import Column, ForeignKey, Integer, String, create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import relationship, declarative_base
 
 # db2.sqliteを削除
