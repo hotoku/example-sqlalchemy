@@ -1,3 +1,5 @@
+# 親子関係のあるテーブルを定義する
+
 import os
 import click
 from sqlalchemy import Column, ForeignKey, Integer, String, create_engine
